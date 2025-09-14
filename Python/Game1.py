@@ -14,13 +14,27 @@ def click(event):
         end("Game Lost!")
 
 def spawn():
-    global rect, rect_coords
+    global rect, rect_coords, turkey_parts
     if rect:
         canvas.delete(rect)
-    x = random.randint(0, 360)
-    y = random.randint(60, 360)
-    rect = canvas.create_rectangle(x, y, x+40, y+40, fill="green")
-    rect_coords = (x, y, x+40, y+40)
+    for part in turkey_parts:
+        canvas.delete(part)
+    turkey_parts.clear()
+    x = random.randint(0, 320)
+    y = random.randint(60, 320)
+    body = canvas.create_oval(x, y, x + 40, y + 40, fill="#8B4513", outline="")
+    head = canvas.create_oval(x + 25, y - 15, x + 40, y + 10, fill="#DEB887", outline="")
+    beak = canvas.create_polygon(x + 37, y - 5, x + 45, y, x + 37, y + 5, fill="orange", outline="")
+    eye = canvas.create_oval(x + 33, y - 10, x + 36, y - 7, fill="black", outline="")
+    wattle = canvas.create_oval(x + 38, y, x + 42, y + 8, fill="red", outline="")
+    tail1 = canvas.create_oval(x - 10, y + 10, x + 10, y + 30, fill="#FFD700", outline="")
+    tail2 = canvas.create_oval(x - 5, y - 5, x + 15, y + 15, fill="#FF8C00", outline="")
+    tail3 = canvas.create_oval(x, y - 15, x + 20, y + 5, fill="#A0522D", outline="")
+    leg1 = canvas.create_line(x + 12, y + 40, x + 12, y + 52, fill="#DEB887", width=3)
+    leg2 = canvas.create_line(x + 28, y + 40, x + 28, y + 52, fill="#DEB887", width=3)
+    turkey_parts.extend([body, head, beak, eye, wattle, tail1, tail2, tail3, leg1, leg2])
+    rect = canvas.create_rectangle(x, y, x + 40, y + 40, outline="")
+    rect_coords = (x, y, x + 40, y + 40)
 
 def timer():
     global time_left, running
@@ -44,7 +58,7 @@ def end(msg):
     canvas.create_text(
         200, 240,
         text=f"Score: {score}",
-        font=("Arial Rounded MT Bold", 22, "bold"),  # Nice bold font for score
+        font=("Arial Rounded MT Bold", 22, "bold"),
         fill="#2E8B57"
     )
     root.after(2000, reset)
@@ -99,5 +113,6 @@ start_btn = tk.Button(
 start_btn.place(relx=0.5, rely=0.5, anchor="center")
 high_score = 0
 high_score_text = None
+turkey_parts = []
 root.mainloop()
 
