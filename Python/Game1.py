@@ -5,8 +5,8 @@ def click(event):
     global score, rect, rect_coords, running
     if not running:
         return
-    x1, y1, x2, y2 = rect_coords
-    if x1 <= event.x <= x2 and y1 <= event.y <= y2:
+    clicked_items = canvas.find_overlapping(event.x, event.y, event.x, event.y)
+    if any(item in turkey_parts for item in clicked_items):
         score += 1
         canvas.itemconfig(score_text, text="Score: " + str(score))
         spawn()
@@ -89,6 +89,8 @@ def start_game():
 
 root = tk.Tk()
 root.geometry("400x400")
+root.title("Turkey Clicker Game")
+root.resizable(False, False)
 canvas = tk.Canvas(root, width=400, height=400, bg="lightblue")
 canvas.pack()
 score = 0
