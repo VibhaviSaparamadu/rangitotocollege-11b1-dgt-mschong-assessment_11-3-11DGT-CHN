@@ -7,9 +7,15 @@ def click(event):
         return
     clicked_items = canvas.find_overlapping(event.x, event.y, event.x, event.y)
     if any(item in turkey_parts for item in clicked_items):
+        for part in turkey_parts:
+            try:
+                canvas.itemconfig(part, fill="red")
+            except tk.TclError:
+                pass
+        canvas.update()
         score += 1
         canvas.itemconfig(score_text, text="Score: " + str(score))
-        spawn()
+        root.after(50, spawn)
     else:
         end("Game Lost!")
 
@@ -125,4 +131,3 @@ high_score = 0
 high_score_text = None
 turkey_parts = []
 root.mainloop()
-
