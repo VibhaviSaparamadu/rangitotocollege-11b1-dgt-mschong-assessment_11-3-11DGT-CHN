@@ -27,8 +27,9 @@ name = ""
 def get_name():
     global name
     n = entry.get().strip()
-    if n == "" or not n.isalpha():
-        messagebox.showwarning("Error", "Please enter a valid name!")
+    if n == "" or not n.isalpha() or len(n) > 12:
+        messagebox.showwarning("Error", "Your name has not been rejected for one or more of the reasons below: \n Your name cannot contain special characters \n" \
+        "Your name cannot contain numbers \n Your name cannot be more than 12 characters long.")
     else:
         name = n
         popup.destroy()
