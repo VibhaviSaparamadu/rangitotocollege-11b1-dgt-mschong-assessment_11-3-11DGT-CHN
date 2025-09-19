@@ -66,12 +66,13 @@ def end(msg):
 def reset():
     global score, time_left, running, score_text, timer_text, high_score_text
     canvas.delete("all")
+    canvas.config(bg=random_light_color())
     score = 0
     time_left = 30
     running = False
     timer_text = canvas.create_text(200, 20, text="Time: 30", font=("Arial Rounded MT Bold", 16), fill="#333")
     score_text = canvas.create_text(200, 50, text="Score: 0", font=("Arial Rounded MT Bold", 16), fill="#333")
-    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#FF8C00")
+    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#EA00FF")
     start_btn.place(relx=0.5, rely=0.5, anchor="center")
 
 def start_game():
@@ -81,17 +82,24 @@ def start_game():
     time_left = 30
     start_btn.place_forget()
     canvas.delete("all")
+    canvas.config(bg=random_light_color())
     timer_text = canvas.create_text(200, 20, text="Time: 30", font=("Arial Rounded MT Bold", 16), fill="#333")
     score_text = canvas.create_text(200, 50, text="Score: 0", font=("Arial Rounded MT Bold", 16), fill="#333")
-    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#FF8C00")
+    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#7E0097")
     spawn()
     timer()
+
+def random_light_color():
+    r = random.randint(200, 255)
+    g = random.randint(200, 255)
+    b = random.randint(200, 255)
+    return f'#{r:02x}{g:02x}{b:02x}'
 
 root = tk.Tk()
 root.geometry("400x400")
 root.title("Turkey Clicker Game")
 root.resizable(False, False)
-canvas = tk.Canvas(root, width=400, height=400, bg="lightblue")
+canvas = tk.Canvas(root, width=400, height=400, bg="#ff8585")
 canvas.pack()
 score = 0
 time_left = 30
