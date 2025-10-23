@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import random
 
+#items available in game
 items = [
     ("Wood", "#a8e6cf", 30),
     ("Rubber", "#dcedc1", 28),
@@ -11,18 +12,25 @@ items = [
     ("Copper", "#fcb0b3", 5),
     ("Silver", "#c8a2c8", 3),
     ("Gold", "#fdd835", 2),
-    ("Titanium", "#b39ddb", 1),
-    ("Neodynium", "#ff80ab", 1),
-    ("Oblivion", "#80cbc4", 1),
-    ("Platanodynium", "#ffcc80", 1),
-    ("Kyrpton", "#c5e1a5", 1),
-    ("Vibranium", "#9fa8da", 1),
-    ("Burger", "#fff59d", 1),
-    ("Cheese Burger", "#ffe082", 1),
+    ("Titanium", "#b39ddb", 2),
+    ("Neodynium", "#ff80ab", 2),
+    ("Oblivion", "#80cbc4", 2),
+    ("Platanodynium", "#ffcc80", 2),
+    ("Kyrpton", "#c5e1a5", 2),
+    ("Vibranium", "#9fa8da", 2),
+    ("Burger", "#fff59d", 2),
+    ("Cheese Burger", "#ffe082", 2),
     ("Pineapple Burger", "#ffb74d", 1)
 ]
 
 class SpinnerGame:
+    def get_luck_boost(self):
+        # Luck boost starts at 20 spins and will increase after that every 10 spins
+        if self.spin_count < 20:
+            return 0
+        #will increase luck by 5% every 10 spins
+        boost = 0.05 * ((self.spin_count - 20) // 10 + 1)
+        return boost
     def __init__(self, root):
         self.win = root
         self.win.title("Lucky Spinner")
@@ -39,18 +47,27 @@ class SpinnerGame:
         self.colors = {n: c for n, c, w in items}
         self.weights = [w for n, c, w in items]
 
+        # Track number of spins
+        self.spin_count = 0
         title = tk.Label(self.win, text="Lucky Spinner", font=self.bigfont, bg="#d1c4e9", fg="#2e004f", pady=10)
         title.pack(fill="x")
-
         self.bar = ttk.Progressbar(self.win, orient="horizontal", length=300, mode="determinate")
         self.bar.pack(pady=15)
-
         self.txt = tk.Label(self.win, text="Click SPIN to try your luck!", bg="#ffffff", width=40, height=3,
                             wraplength=250, font=self.midfont, relief="solid", bd=1)
         self.txt.pack(pady=10)
 
+
         self.result = tk.Label(self.win, text="", bg="#f2f2ff", font=self.midfont)
         self.result.pack()
+
+        # Luck boost label
+        self.luck_label = tk.Label(self.win, text="Luck Boost: 0%", bg="#e1bee7", fg="#6a1b9a", font=("Verdana", 13, "bold"), relief="groove", bd=2, padx=8, pady=4)
+        self.luck_label.pack(pady=4)
+
+        # Total spins label
+        self.spins_label = tk.Label(self.win, text="Total Spins: 0", bg="#ffe0b2", fg="#ef6c00", font=("Verdana", 13, "bold"), relief="groove", bd=2, padx=8, pady=4)
+        self.spins_label.pack(pady=4)
 
         self.btn = tk.Button(self.win, text="SPIN!", font=self.bigfont, bg="#b2fab4", fg="#004d40",
                              activebackground="#81c784", command=self.spin)
@@ -64,6 +81,11 @@ class SpinnerGame:
         self.btn.config(state="disabled")
         self.bar["value"] = 0
         self.txt.config(text="Spinning...", bg="#fff3e0")
+        self.spin_count += 1
+        boost = self.get_luck_boost()
+        self.luck_label.config(text=f"Luck Boost: {int(boost*100)}%")
+        # Update total spins label
+        self.spins_label.config(text=f"Total Spins: {self.spin_count}")
         for i in range(40):
             self.win.after(i * 50, self.update_bar)
         for i in range(20):
@@ -79,15 +101,26 @@ class SpinnerGame:
         self.txt.config(text=n, bg=c)
 
     def final_spin(self):
-        pick = random.choices(self.names, weights=self.weights, k=1)[0]
+        luck_boost = self.get_luck_boost()
+        boosted_weights = []
+        for n, c, w in items:
+            if w <= 2 and luck_boost > 0:
+                # Boost rare item chance
+                boosted = w * (1 + luck_boost)
+            else:
+                boosted = w
+            boosted_weights.append(boosted)
+        pick = random.choices(self.names, weights=boosted_weights, k=1)[0]
         self.inv[pick] += 1
         self.txt.config(text=f"{pick}", bg=self.colors[pick])
         self.result.config(text="You got: " + pick)
         for n, c, w in items:
             if n == pick and w <= 2:
-                messagebox.showinfo("WOW!", "You got a super rare item: " + pick)
+                messagebox.showinfo("WOW!", "You got a super rare item: " + pick) 
+                #if user gets rare item with chance less than 2%, show message
         self.btn.config(state="normal")
 
+    #storage window
     def show_storage(self):
         s = tk.Toplevel(self.win)
         s.title("Your Storage")
