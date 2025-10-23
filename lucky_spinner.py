@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
-from utils import stats
+import stats
 
 items = [
     ("Wood", "#a8e6cf", 30),
@@ -145,4 +145,5 @@ class SpinnerGame:
 
 root = tk.Tk()
 app = SpinnerGame(root)
+
 root.mainloop()
