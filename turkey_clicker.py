@@ -102,9 +102,13 @@ def end_game(text):
         stats.update_stats(losses=stats.player_stats["losses"] + 1)
     else:
         stats.update_stats(wins=stats.player_stats["wins"] + 1)
-        
+    
+    if high_scores[level] is None or score > high_scores[level]:
+        high_scores[level] = score
+
     canvas.create_text(200, 200, text=text, font=("Arial", 20), fill="red")
     canvas.create_text(200, 240, text=f"Score: {score}", font=("Arial Rounded MT Bold", 22, "bold"), fill="#2E8B57")
+    canvas.create_text(200, 270, text=f"High Score: {high_scores[level]}", font=("Arial Rounded MT Bold", 18), fill="#5a3d9a")
     root.after(2000, reset)
 
 def reset():
@@ -185,5 +189,4 @@ tk.Button( #start game button
 
 start_frame.place(relx=0.5, rely=0.5, anchor="center")
 draw_hud()
-
 root.mainloop()
