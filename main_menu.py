@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import subprocess
-from utils import stats
+import stats
 
 
 wins = 0
@@ -78,3 +78,4 @@ else:
     tk.Button(root, text="EXIT", bg="#DF0000", fg="#FFFFFF", width=15, height=2, font=("Courier New", 12, "bold"), command=root.quit).pack(side="bottom", pady=90)
 
     root.mainloop()
+
