@@ -1,49 +1,88 @@
 import tkinter as tk
 import random
 
-def click(event):
-    global score, rect, rect_coords, running
-    if not running:
-        return
-    clicked_items = canvas.find_overlapping(event.x, event.y, event.x, event.y)
-    if any(item in turkey_parts for item in clicked_items):
-        for part in turkey_parts:
-            try:
-                canvas.itemconfig(part, fill="red")
-            except tk.TclError:
-                pass
-        canvas.update()
-        score += 1
-        canvas.itemconfig(score_text, text="Score: " + str(score))
-        root.after(50, spawn)
-    else:
-        end("Game Lost!")
+root = tk.Tk()
+root.title("Turkey Clicker") #game title
+root.geometry("400x400")
+root.resizable(False, False)
 
-def spawn():
-    global rect, rect_coords, turkey_parts
+canvas = tk.Canvas(root, width=400, height=400, bg="#ff8585")
+canvas.pack()
+
+# level configurations
+levels = {
+    1: {"time": 40, "size": 50},
+    2: {"time": 30, "size": 40},
+    3: {"time": 20, "size": 30},
+}
+
+#variables
+score = 0
+time_left = 30
+running = False
+turkey_parts = []
+rect = None
+level = 2
+
+high_scores = {1: None, 2: None, 3: None}
+
+#random color generator
+def random_color():
+    r = random.randint(200, 255)
+    g = random.randint(200, 255)
+    b = random.randint(200, 255)
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+def draw_turkey():
+    global turkey_parts, rect
+    for p in turkey_parts:
+        canvas.delete(p)
     if rect:
         canvas.delete(rect)
-    for part in turkey_parts:
-        canvas.delete(part)
-    turkey_parts.clear()
-    x = random.randint(0, 320)
-    y = random.randint(60, 320)
-    body = canvas.create_oval(x, y, x + 40, y + 40, fill="#8B4513", outline="")
-    head = canvas.create_oval(x + 25, y - 15, x + 40, y + 10, fill="#DEB887", outline="")
-    beak = canvas.create_polygon(x + 37, y - 5, x + 45, y, x + 37, y + 5, fill="orange", outline="")
-    eye = canvas.create_oval(x + 33, y - 10, x + 36, y - 7, fill="black", outline="")
-    wattle = canvas.create_oval(x + 38, y, x + 42, y + 8, fill="red", outline="")
-    tail1 = canvas.create_oval(x - 10, y + 10, x + 10, y + 30, fill="#FFD700", outline="")
-    tail2 = canvas.create_oval(x - 5, y - 5, x + 15, y + 15, fill="#FF8C00", outline="")
-    tail3 = canvas.create_oval(x, y - 15, x + 20, y + 5, fill="#A0522D", outline="")
-    leg1 = canvas.create_line(x + 12, y + 40, x + 12, y + 52, fill="#DEB887", width=3)
-    leg2 = canvas.create_line(x + 28, y + 40, x + 28, y + 52, fill="#DEB887", width=3)
-    turkey_parts.extend([body, head, beak, eye, wattle, tail1, tail2, tail3, leg1, leg2])
-    rect = canvas.create_rectangle(x, y, x + 40, y + 40, outline="")
-    rect_coords = (x, y, x + 40, y + 40)
+    turkey_parts = []
+
+    s = turkey_size
+    base = 40
+    scale = s / base
+    max_x = max(0, 400 - int(base * scale + 50 * scale))
+    max_y = max(60, 400 - int(base * scale + 60 * scale))
+    x = random.randint(0, max_x)
+    y = random.randint(60, max_y)
+    def sx(a): return int(x + a * scale)
+    def sy(a): return int(y + a * scale)
+
+    #turkey parts
+    body = canvas.create_oval(sx(0), sy(0), sx(40), sy(40), fill="#8B4513", outline="")
+    head = canvas.create_oval(sx(25), sy(-15), sx(40), sy(10), fill="#DEB887", outline="")
+    beak = canvas.create_polygon(sx(37), sy(-5), sx(45), sy(0), sx(37), sy(5), fill="orange", outline="")
+    eye = canvas.create_oval(sx(33), sy(-10), sx(36), sy(-7), fill="black", outline="")
+    wattle = canvas.create_oval(sx(38), sy(0), sx(42), sy(8), fill="red", outline="")
+    tail1 = canvas.create_oval(sx(-10), sy(10), sx(10), sy(30), fill="#FFD700", outline="")
+    tail2 = canvas.create_oval(sx(-5), sy(-5), sx(15), sy(15), fill="#FF8C00", outline="")
+    tail3 = canvas.create_oval(sx(0), sy(-15), sx(20), sy(5), fill="#A0522D", outline="")
+    leg1 = canvas.create_line(sx(12), sy(40), sx(12), sy(52), fill="#DEB887", width=int(3 * scale))
+    leg2 = canvas.create_line(sx(28), sy(40), sx(28), sy(52), fill="#DEB887", width=int(3 * scale))
+    turkey_parts = [body, head, beak, eye, wattle, tail1, tail2, tail3, leg1, leg2]
+    rect = canvas.create_rectangle(sx(0), sy(0), sx(40), sy(40), outline="")
+
+def click(event):
+    global score
+    if not running:
+        return
+    items = canvas.find_overlapping(event.x, event.y, event.x, event.y)
+    hit = any(i in turkey_parts for i in items)
+    if hit:
+        for p in turkey_parts:
+            canvas.itemconfig(p, fill="red")
+        canvas.update()
+        score += 1 #upon user click, score increases by 1
+        canvas.itemconfig(score_text, text="Score: " + str(score))
+        root.after(50, draw_turkey)
+    else:
+        end_game("Game Lost!") #if user click on background, game ends
 
 def timer():
-    global time_left, running
+    global time_left
     if not running:
         return
     if time_left > 0:
@@ -51,83 +90,93 @@ def timer():
         canvas.itemconfig(timer_text, text="Time: " + str(time_left))
         root.after(1000, timer)
     else:
-        end("Time's Up!")
+        end_game("Time's Up!") #when time reaches 0, game ends
 
-def end(msg):
-    global running, rect, score, high_score
+def end_game(text):
+    global running
     running = False
-    if rect:
-        canvas.delete(rect)
-    if score > high_score:
-        high_score = score
-    canvas.create_text(200, 200, text=msg, font=("Arial", 20), fill="red")
-    canvas.create_text(
-        200, 240,
-        text=f"Score: {score}",
-        font=("Arial Rounded MT Bold", 22, "bold"),
-        fill="#2E8B57"
-    )
+    if high_scores[level] is None or score > high_scores[level]: #high score tracking
+        high_scores[level] = score
+    canvas.create_text(200, 200, text=text, font=("Arial", 20), fill="red")
+    canvas.create_text(200, 240, text=f"Score: {score}", font=("Arial Rounded MT Bold", 22, "bold"), fill="#2E8B57")
     root.after(2000, reset)
 
 def reset():
-    global score, time_left, running, score_text, timer_text, high_score_text
+    global score, time_left, running
     canvas.delete("all")
-    canvas.config(bg=random_light_color())
+    canvas.config(bg=random_color())
     score = 0
-    time_left = 30
     running = False
-    timer_text = canvas.create_text(200, 20, text="Time: 30", font=("Arial Rounded MT Bold", 16), fill="#333")
-    score_text = canvas.create_text(200, 50, text="Score: 0", font=("Arial Rounded MT Bold", 16), fill="#333")
-    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#EA00FF")
-    start_btn.place(relx=0.5, rely=0.5, anchor="center")
+    time_left = levels[level]["time"]
+    draw_hud()
+    start_frame.place(relx=0.5, rely=0.5, anchor="center")
 
 def start_game():
-    global running, score, time_left, timer_text, score_text, high_score_text
+    global running, score, time_left, turkey_size, level
     running = True
     score = 0
-    time_left = 30
-    start_btn.place_forget()
+    level = level_var.get()
+    turkey_size = levels[level]["size"]
+    time_left = levels[level]["time"]
+    start_frame.place_forget()
     canvas.delete("all")
-    canvas.config(bg=random_light_color())
-    timer_text = canvas.create_text(200, 20, text="Time: 30", font=("Arial Rounded MT Bold", 16), fill="#333")
-    score_text = canvas.create_text(200, 50, text="Score: 0", font=("Arial Rounded MT Bold", 16), fill="#333")
-    high_score_text = canvas.create_text(200, 80, text=f"High Score: {high_score}", font=("Arial Rounded MT Bold", 16), fill="#7E0097")
-    spawn()
+    canvas.config(bg=random_color())
+    draw_hud()
+    if high_scores[level] is not None: 
+        canvas.create_text(200, 80, text=f"High Score: {high_scores[level]}", font=("Arial Rounded MT Bold", 16), fill="#5a3d9a")
+    draw_turkey()
     timer()
 
-def random_light_color():
-    r = random.randint(200, 255)
-    g = random.randint(200, 255)
-    b = random.randint(200, 255)
-    return f'#{r:02x}{g:02x}{b:02x}'
-
-root = tk.Tk()
-root.geometry("400x400")
-root.title("Turkey Clicker Game")
-root.resizable(False, False)
-canvas = tk.Canvas(root, width=400, height=400, bg="#ff8585")
-canvas.pack()
-score = 0
-time_left = 30
-running = False
-rect = None
-rect_coords = (0,0,0,0)
-timer_text = canvas.create_text(200, 20, text="Time: 30", font=("Arial Rounded MT Bold", 16), fill="#333")
-score_text = canvas.create_text(200, 50, text="Score: 0", font=("Arial Rounded MT Bold", 16), fill="#333")
+def draw_hud():
+    global timer_text, score_text 
+    timer_text = canvas.create_text(200, 20, text="Time: " + str(time_left), font=("Arial Rounded MT Bold", 16), fill="#333")
+    score_text = canvas.create_text(200, 50, text="Score: " + str(score), font=("Arial Rounded MT Bold", 16), fill="#333")
+    #timer and score display
 canvas.bind("<Button-1>", click)
-start_btn = tk.Button(
-    root,
+
+start_frame = tk.Frame(root, bg="#e6f0ff", width=320, height=140, bd=2, relief="ridge")
+level_var = tk.IntVar(value=2)
+
+tk.Label( #game level selection menu
+    start_frame,
+    text="Choose Level:",
+    font=("Arial Rounded MT Bold", 14, "bold"),
+    bg=start_frame["bg"],
+    fg="#3a4d63"
+).pack(pady=(15, 5))
+
+row = tk.Frame(start_frame, bg=start_frame["bg"])
+row.pack(pady=5)
+for i in [1, 2, 3]:
+    tk.Radiobutton( #game level radio buttons
+        row,
+        text=f"Level {i}",
+        variable=level_var,
+        value=i,
+        bg=start_frame["bg"],
+        fg="#4a6480",
+        font=("Arial Rounded MT Bold", 12),
+        activebackground="#c7d9f3",
+        activeforeground="#2a3b55",
+        selectcolor="#a5b8d8",
+        pady=2
+    ).pack(side="left", padx=15)
+
+tk.Button( #start game button
+    start_frame,
     text="Start",
     command=start_game,
-    font=("Arial Rounded MT Bold", 20, "bold"),
-    bg="#4CAF50",
-    fg="white",
+    font=("Arial Rounded MT Bold", 16, "bold"),
+    bg="#74e478",
+    fg="#ffffff",
     relief="flat",
-    padx=20,
-    pady=10
-)
-start_btn.place(relx=0.5, rely=0.5, anchor="center")
-high_score = 0
-high_score_text = None
-turkey_parts = []
+    padx=15,
+    pady=8,
+    activebackground="#63a66d",
+    activeforeground="#FFFFFF",
+    cursor="hand2"
+).pack(pady=(10, 12))
+
+start_frame.place(relx=0.5, rely=0.5, anchor="center")
+draw_hud()
 root.mainloop()
