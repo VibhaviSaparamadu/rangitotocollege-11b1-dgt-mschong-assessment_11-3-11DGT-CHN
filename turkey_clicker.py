@@ -1,6 +1,6 @@
 import tkinter as tk
 import random
-from utils import stats
+import stats
 
 root = tk.Tk()
 root.title("Turkey Clicker") #game title
@@ -185,4 +185,5 @@ tk.Button( #start game button
 
 start_frame.place(relx=0.5, rely=0.5, anchor="center")
 draw_hud()
+
 root.mainloop()
