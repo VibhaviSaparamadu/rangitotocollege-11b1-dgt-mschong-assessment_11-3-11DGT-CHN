@@ -19,7 +19,7 @@ items = [
     ("Vibranium", "#9fa8da", 1),
     ("Burger", "#fff59d", 1),
     ("Cheese Burger", "#ffe082", 1),
-    ("Pineapple Burger", "#ffb74d", 300)
+    ("Pineapple Burger", "#ffb74d", 1)
 ]
 
 class SpinnerGame:
