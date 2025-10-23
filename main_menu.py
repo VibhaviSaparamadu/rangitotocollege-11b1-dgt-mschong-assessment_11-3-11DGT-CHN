@@ -15,6 +15,9 @@ def launch_turkey_clicker():
 def launch_lucky_spinner():
     subprocess.Popen(["python", "lucky_spinner.py"])
 
+def launch_fast_clicker():
+    subprocess.Popen(["python", "fast_clicker.py"])
+
 root = tk.Tk()
 root.withdraw()
 popup = tk.Toplevel()
@@ -72,10 +75,9 @@ else:
     games.pack(pady=20)
     tk.Button(games, text="Turkey Clicker", width=20, height=5, font=("Courier New", 14), command=launch_turkey_clicker).grid(row=0, column=0, padx=20)
     tk.Button(games, text="Lucky Spinner", width=20, height=5, font=("Courier New", 14), command=launch_lucky_spinner).grid(row=0, column=1, padx=20)
-    tk.Button(games, text="Falling Apples", width=20, height=5, font=("Courier New", 14)).grid(row=0, column=2, padx=20)
+    tk.Button(games, text="Speed Clicker", width=20, height=5, font=("Courier New", 14), command=launch_fast_clicker).grid(row=0, column=2, padx=20)
 
     tk.Button(root, text="Tic-Tac-Toe", width=25, height=5, font=("Courier New", 14)).pack(pady=(30, 50))
     tk.Button(root, text="EXIT", bg="#DF0000", fg="#FFFFFF", width=15, height=2, font=("Courier New", 12, "bold"), command=root.quit).pack(side="bottom", pady=90)
 
     root.mainloop()
-
